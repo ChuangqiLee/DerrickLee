@@ -1,4 +1,8 @@
 /* Standalone pages, sharing the original visual language. */
+.expanded-heading { margin: 0; font-size: 13px; font-weight: 600; line-height: 1.6; color: var(--green); }
+.project .expanded-content { font-size: 11px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
+.project .expanded-content p { color: var(--muted); }
+.company-more > .expanded-heading { font-family: var(--sans); }
 .multipage { min-height: 100vh; display: flex; flex-direction: column; }
 .page-content { flex: 1; }
 .multipage .header { flex-shrink: 0; }
