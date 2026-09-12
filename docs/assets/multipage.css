@@ -1,0 +1,69 @@
+/* Standalone pages, sharing the original visual language. */
+.multipage { min-height: 100vh; display: flex; flex-direction: column; }
+.page-content { flex: 1; }
+.multipage .header { flex-shrink: 0; }
+.multipage .header nav { gap: 20px; }
+.multipage .nav-wrap { gap: 22px; }
+.breadcrumbs { display: flex; gap: 13px; align-items: center; padding-top: 28px; font-size: 11px; color: var(--muted); }
+.breadcrumbs a { color: var(--green); }
+.breadcrumbs > span[aria-hidden] { color: #a5b29b; }
+.detail-page .page-content > .section { padding-top: 38px; min-height: 60vh; }
+.detail-page .page-content > .publications-section,
+.detail-page .page-content > .experience-section,
+.detail-page .page-content > .company-section { background: transparent; border-top: 0; }
+.detail-page .page-content h1 { font-family: var(--serif); font-size: 43px; line-height: 1.2; letter-spacing: -1.7px; white-space: normal; }
+.detail-page .section-heading h1 { margin-top: 12px; }
+.detail-page .news-intro h1 { font-size: 35px; margin: 14px 0; }
+.detail-page .experience-grid h1 { margin: 15px 0 18px; }
+.detail-page .contact-section { margin-top: 28px; }
+.detail-page .contact-section h1 { font-size: 39px; margin: 14px 0; }
+.site-directory { border-top: 1px solid var(--line); }
+.directory-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.directory-card { display: flex; align-items: flex-start; gap: 20px; padding: 25px; border: 1px solid var(--line); background: #fbfcf7; border-radius: 4px; transition: background .2s, border-color .2s; }
+.directory-card:hover { background: #edf1e7; border-color: #a1b193; }
+.directory-number { font: 10px/1.8 monospace; padding-top: 4px; color: #75846c; }
+.directory-card h3 { font: 24px/1.3 var(--serif); color: var(--ink); }
+.directory-card p { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.directory-arrow { margin-left: auto; color: var(--green); }
+.multi-footer { margin-top: auto; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.footer-links { display: flex; align-items: center; flex-wrap: wrap; gap: 23px; margin-left: auto; }
+.multi-footer > span { width: 100%; }
+.contact-directory { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; }
+.contact-directory h2 { font-size: 25px; letter-spacing: -.5px; margin-bottom: 20px; }
+.contact-directory a { display: block; margin-bottom: 12px; font-size: 13px; color: var(--green); }
+.contact-directory p { font-size: 12px; color: var(--muted); }
+.cv-page .nav-wrap { max-width: 1296px; }
+.cv-page .multi-footer { padding-block: 27px; }
+html[lang=zh-CN] .detail-page .page-content h1 { font-size: 35px; letter-spacing: 0; line-height: 1.4; }
+html[lang=zh-CN] .directory-card h3 { font-family: var(--sans); font-size: 21px; }
+@media (min-width: 1101px) and (max-width: 1230px) {
+  .multipage .header .brand-name { display: none; }
+}
+@media (max-width: 1000px) {
+  .multipage .header { height: 70px; }
+  .multipage .brand-name { display: inline; font-size: 12px; }
+  .multipage .header nav { display: none; position: absolute; top: 69px; left: 0; right: 0; padding: 16px 24px; background: var(--paper); border-bottom: 1px solid var(--line); flex-direction: column; gap: 3px; font-size: 14px; max-height: calc(100dvh - 70px); overflow-y: auto; }
+  .multipage .header nav.open { display: flex; }
+  .multipage .header nav a { padding: 8px 0; }
+  .multipage .header nav a.active:after { right: auto; width: 22px; }
+  .multipage .menu-toggle { display: block; }
+}
+@media (max-width: 760px) {
+  .breadcrumbs { padding-top: 22px; font-size: 10px; }
+  .detail-page .page-content > .section { padding-top: 28px; }
+  .detail-page .page-content h1 { font-size: 34px; }
+  .detail-page .news-intro h1 { font-size: 31px; }
+  .detail-page .contact-section h1 { font-size: 32px; }
+  .directory-grid { grid-template-columns: 1fr; gap: 11px; }
+  .directory-card { padding: 22px; gap: 16px; }
+  .directory-card h3 { font-size: 23px; }
+  .contact-directory { grid-template-columns: 1fr; gap: 30px; }
+  .contact-directory article { padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .contact-directory h2 { font-size: 25px; }
+  .footer-links { gap: 16px; }
+  html[lang=zh-CN] .detail-page .page-content h1 { font-size: 29px; }
+}
+@media print {
+  .cv-page .header, .cv-page .skip-link, .cv-page .multi-footer { display: none; }
+  .cv-page.multipage { display: block; min-height: 0; }
+}
