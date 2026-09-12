@@ -13,7 +13,7 @@
     if('IntersectionObserver' in window)new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)video.pause();else if(!userPaused&&!reduced.matches)video.play().catch(sync);});},{threshold:.1}).observe(video);
     new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});sync();
   }
-  const navLinks=[...document.querySelectorAll('.qe-jump a:not(.corp-nav-brand)')];
+  const navLinks=[...document.querySelectorAll('.qe-jump a[href^="#"]:not(.corp-nav-brand)')];
   const progress=document.createElement('div');progress.className='corp-nav-progress';progress.setAttribute('aria-hidden','true');document.body.append(progress);
   let frame=0;
   function update(){frame=0;const max=document.documentElement.scrollHeight-innerHeight;progress.style.transform=`scaleX(${max>0?Math.min(1,scrollY/max):0})`;let current='';navLinks.forEach(a=>{const el=document.querySelector(a.getAttribute('href'));if(el&&el.getBoundingClientRect().top<240)current=a.getAttribute('href');});navLinks.forEach(a=>{a.classList.toggle('is-current',a.getAttribute('href')===current);if(a.getAttribute('href')===current)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});}
