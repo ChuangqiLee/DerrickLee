@@ -1,4 +1,35 @@
 /* Standalone pages, sharing the original visual language. */
+.hero-affiliation { color: var(--green); font-size: 12px; margin: -9px 0 21px; }
+.education-divider { border-top: 1px solid var(--line); margin: 24px 0 18px; }
+.company-founded { color: var(--muted); font-size: 11px; margin-top: 9px; }
+.research-highlights { margin-top: 14px; }
+.research-feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); gap: 55px; padding: 37px 0; border-top: 1px solid var(--line); }
+.research-feature-intro .eyebrow { font-size: 9px; letter-spacing: 1px; }
+.research-feature-intro h2 { font-size: 30px; line-height: 1.3; letter-spacing: -.8px; margin: 16px 0; overflow-wrap: anywhere; }
+.research-venue { font-size: 11px; color: var(--green); line-height: 1.7; }
+.research-date { font-size: 10px; color: var(--muted); margin-top: 10px; }
+.research-links { display: flex; flex-wrap: wrap; gap: 12px 22px; margin-top: 21px; }
+.research-block + .research-block { margin-top: 20px; }
+.research-block h3, .research-limitations h3 { font-size: 12px; font-weight: 600; margin: 0 0 7px; color: var(--green); }
+.research-block p, .research-limitations p { font-size: 13px; line-height: 1.85; color: var(--muted); }
+.research-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin: 22px 0; padding: 18px 0; border-block: 1px solid var(--line); }
+.research-metrics > div { display: flex; flex-direction: column; }
+.research-metrics dt { font-size: 10px; color: var(--muted); }
+.research-metrics dd { order: -1; margin: 0 0 5px; font: 27px/1.3 var(--serif); color: var(--green); }
+.research-limitations { border-left: 2px solid #a3b396; padding-left: 15px; }
+.research-limitations p { font-size: 11px; }
+.earlier-research-heading { padding-top: 36px; border-top: 1px solid var(--line); }
+.cv-page .graduate-study .small-note { margin-top: 8px; }
+html[lang=zh-CN] .research-feature-intro h2 { font-size: 26px; line-height: 1.5; letter-spacing: 0; }
+@media (max-width: 760px) {
+  .research-feature { grid-template-columns: 1fr; gap: 25px; padding: 28px 0; }
+  .research-feature-intro h2 { font-size: 28px; }
+  .research-block p { font-size: 12px; }
+  .research-metrics { gap: 10px; }
+  .research-metrics dd { font-size: 24px; }
+  .research-metrics dt { font-size: 9px; }
+  html[lang=zh-CN] .research-feature-intro h2 { font-size: 24px; }
+}
 .expanded-heading { margin: 0; font-size: 13px; font-weight: 600; line-height: 1.6; color: var(--green); }
 .project .expanded-content { font-size: 11px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
 .project .expanded-content p { color: var(--muted); }
