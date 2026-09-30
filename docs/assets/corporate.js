@@ -10,7 +10,7 @@
     video.addEventListener('play',sync);video.addEventListener('pause',sync);video.addEventListener('error',sync);
     button?.addEventListener('click',()=>{if(video.paused){userPaused=false;video.play().catch(sync);}else{userPaused=true;video.pause();}sync();});
     reduced.addEventListener('change',()=>{if(reduced.matches){userPaused=true;video.pause();}sync();});
-    if('IntersectionObserver' in window)new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)video.pause();else if(!userPaused&&!reduced.matches)video.play().catch(sync);});},{threshold:.1}).observe(video);
+    if('IntersectionObserver' in window)new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)video.pause();else if(!userPaused&&!reduced.matches&&!document.documentElement.classList.contains('motion-reduced'))video.play().catch(sync);});},{threshold:.1}).observe(video);
     new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});sync();
   }
   const navLinks=[...document.querySelectorAll('.qe-jump a[href^="#"]:not(.corp-nav-brand)')];

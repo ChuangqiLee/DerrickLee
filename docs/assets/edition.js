@@ -22,7 +22,6 @@
   }
   document.querySelectorAll('.edition-motion').forEach(button=>button.addEventListener('click',()=>{custom=!custom;try{localStorage.setItem('edition-reduce-motion',String(custom));}catch{}syncMotion();}));
   system.addEventListener('change',syncMotion); fine.addEventListener('change',hide);
-  document.querySelectorAll('video[autoplay]').forEach(video=>video.addEventListener('play',()=>{if(disabled())video.pause();}));
   new MutationObserver(syncMotion).observe(root,{attributes:true,attributeFilter:['lang']});syncMotion();
   let scheduled=false;
   function scrollUpdate(){scheduled=false;const max=root.scrollHeight-innerHeight;progress.style.transform=`scaleX(${max>0?Math.min(1,Math.max(0,scrollY/max)):0})`;}
