@@ -1,0 +1,64 @@
+/* Patient follow-up platform: a dark band after the flagship product that opens the interactive planning map (followup/). */
+.fu-section{position:relative;overflow:hidden;background:#0e1922;color:#e9f0f4;padding:90px 0}
+.fu-section:before,.fu-section:after{content:'';position:absolute;border-radius:50%;pointer-events:none}
+.fu-section:before{width:900px;height:900px;right:-260px;top:-380px;background:radial-gradient(closest-side,rgba(38,86,168,.32),transparent)}
+.fu-section:after{width:620px;height:620px;left:-260px;bottom:-360px;background:radial-gradient(closest-side,rgba(234,85,22,.07),transparent)}
+.fu-section>.wrap{position:relative;z-index:1}
+.corporate-page .fu-section .qe-kicker{color:#7f9aab}
+.edition-site.corporate-page #main .fu-section h2{color:#f3f7f9}
+.edition-site.corporate-page .fu-section .qe-section-desc{color:#93a8b5}
+
+.fu-feature{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:60px;align-items:center}
+.corporate-page .fu-copy .eyebrow{color:#8fb0c8}
+.fu-copy h3{font:400 46px/1.12 var(--sans);letter-spacing:-.04em;color:#f4f7f9;margin:18px 0 16px}
+html[lang=zh-CN] .fu-copy h3{font-size:40px;letter-spacing:.01em}
+.fu-tagline{font-size:20px;line-height:1.5;color:#d3dee5;margin:0 0 14px}
+.fu-description{font-size:13px;line-height:1.95;color:#9fb2bf;margin:0}
+.fu-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:30px 0 32px;border-block:1px solid rgba(255,255,255,.12)}
+.fu-stats>div{padding:18px 0 16px 18px;border-left:1px solid rgba(255,255,255,.1)}
+.fu-stats>div:first-child{padding-left:0;border-left:0}
+.fu-stats dt{font:400 34px/1 var(--serif);letter-spacing:-.03em;color:#fff}
+.fu-stats dd{margin:9px 0 0;font-size:11px;line-height:1.4;color:#8ea4b2}
+.fu-actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px 30px}
+.fu-open{display:inline-flex;align-items:center;justify-content:space-between;gap:40px;background:#e8eef1;color:#18232a;border:1px solid #e8eef1;padding:15px 23px;font-size:12px;transition:background .25s,transform .25s}
+.fu-open:hover{background:#c8d9e3;color:#152027;transform:translateY(-2px)}
+.fu-report{display:inline-flex;align-items:center;gap:24px;font-size:12px;color:#dae4ea;padding-bottom:4px;border-bottom:1px solid #5e7889}
+.fu-report:hover{color:#fff;border-color:#c8d9e3}
+
+/* The preview is a browser window; three highlight states fade in over the map in turn, as when hovering pages in the real map. */
+.fu-preview{display:block;border-radius:12px;overflow:hidden;background:#0b141c;box-shadow:0 0 0 1px rgba(255,255,255,.09),0 40px 80px -40px rgba(0,0,0,.75);transition:transform .5s var(--ease,ease),box-shadow .5s}
+.fu-preview:hover{transform:translateY(-4px);box-shadow:0 0 0 1px rgba(168,198,255,.35),0 50px 90px -40px rgba(0,0,0,.85)}
+.fu-window{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;height:38px;padding:0 14px;background:#16222d;border-bottom:1px solid rgba(255,255,255,.06)}
+.fu-dots{display:flex;gap:6px}
+.fu-dots i{width:9px;height:9px;border-radius:50%;background:#2e3c48}
+.fu-address{height:22px;border-radius:6px;background:#0f1922;color:#7d93a2;font-size:11px;line-height:22px;padding:0 12px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fu-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.04em;color:#dbe6ee;white-space:nowrap}
+.fu-pulse{position:relative;width:7px;height:7px;border-radius:50%;background:#ea5516}
+.fu-pulse:after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(234,85,22,.75);animation:fu-pulse 2.4s ease-out infinite}
+.fu-screen{position:relative;display:block;aspect-ratio:1440/900;background:#f3f5f4}
+.fu-screen img{display:block;width:100%;height:auto}
+.fu-glow{position:absolute;left:0;bottom:0;opacity:0;-webkit-mask-image:linear-gradient(transparent,#000 5%);mask-image:linear-gradient(transparent,#000 5%);animation:fu-glow 13.5s ease-in-out infinite}
+.fu-glow-2{animation-delay:4.5s}
+.fu-glow-3{animation-delay:9s}
+@keyframes fu-glow{0%,28%,100%{opacity:0}6%,22%{opacity:1}}
+@keyframes fu-pulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.9);opacity:0}}
+.fu-note{color:#71889a;font-size:10px;margin:28px 0 0}
+
+@media(max-width:1100px){.fu-feature{gap:40px}.fu-copy h3{font-size:40px}html[lang=zh-CN] .fu-copy h3{font-size:36px}}
+@media(max-width:900px){.fu-feature{grid-template-columns:1fr;gap:36px}}
+@media(max-width:750px){
+  .fu-section{padding:50px 0}
+  .fu-copy h3{font-size:36px}
+  html[lang=zh-CN] .fu-copy h3{font-size:32px}
+  .fu-tagline{font-size:18px}
+  .fu-stats dt{font-size:28px}
+  .fu-stats>div{padding-left:12px}
+  .fu-preview{border-radius:10px}
+  .fu-window{height:32px;gap:10px;padding:0 10px}
+  .fu-address{font-size:10px;height:20px;line-height:20px;padding:0 8px}
+  .fu-open:hover{transform:none}
+}
+@media(max-width:420px){.fu-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.fu-stats>div:nth-child(3){padding-left:0;border-left:0}.fu-stats>div:nth-child(n+3){border-top:1px solid rgba(255,255,255,.1)}.fu-dots{display:none}}
+@media(prefers-reduced-motion:reduce){.fu-glow,.fu-pulse:after{animation:none}.fu-preview,.fu-open{transition:none}}
+.motion-reduced .fu-glow,.motion-reduced .fu-pulse:after{animation:none}
+@media print{.fu-section{background:#fff!important;color:#000!important}.fu-section:before,.fu-section:after,.fu-glow{display:none}}
