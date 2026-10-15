@@ -293,3 +293,4 @@ body.tech-site .travel-place-list button:before{background:var(--dim)}
 body.tech-site .travel-place-list button:hover{color:var(--cyan)!important}
 body.tech-site .databank-card,body.tech-site .databank-card *{min-width:0;overflow-wrap:anywhere}
 @media(max-width:760px){body.tech-site .databank-card{padding-inline:14px!important}}
+body.tech-site .travel-shell *{border-color:var(--line)}
