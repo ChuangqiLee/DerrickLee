@@ -205,12 +205,12 @@ body.tech-site .tech-rise.tech-rise{opacity:0;transform:translateY(24px);transit
 body.tech-site .tech-rise.tech-in{opacity:1;transform:none}
 .tech-glitch{position:relative}
 .tech-glitch::before,.tech-glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;pointer-events:none;opacity:0;background:none!important}
-.tech-glitch::before{-webkit-text-fill-color:rgba(122,162,255,.9);transform:translate(-2px,0)}
-.tech-glitch::after{-webkit-text-fill-color:rgba(255,120,200,.75);transform:translate(2px,0)}
+.tech-glitch::before{-webkit-text-fill-color:rgba(122,162,255,.7);transform:translate(-2px,0)}
+.tech-glitch::after{-webkit-text-fill-color:rgba(255,120,200,.5);transform:translate(2px,0)}
 .tech-glitch.is-glitching::before{opacity:1;animation:tech-glitch-a .38s steps(2) both}
 .tech-glitch.is-glitching::after{opacity:1;animation:tech-glitch-b .38s steps(2) both}
-@keyframes tech-glitch-a{0%{clip-path:inset(12% 0 70% 0)}30%{clip-path:inset(58% 0 18% 0);transform:translate(-4px,0)}60%{clip-path:inset(36% 0 42% 0)}100%{clip-path:inset(0 0 100% 0)}}
-@keyframes tech-glitch-b{0%{clip-path:inset(68% 0 10% 0)}30%{clip-path:inset(14% 0 64% 0);transform:translate(4px,0)}60%{clip-path:inset(46% 0 30% 0)}100%{clip-path:inset(100% 0 0 0)}}
+@keyframes tech-glitch-a{0%{clip-path:inset(12% 0 76% 0)}30%{clip-path:inset(62% 0 26% 0);transform:translate(-4px,0)}60%{clip-path:inset(40% 0 50% 0)}100%{clip-path:inset(0 0 100% 0)}}
+@keyframes tech-glitch-b{0%{clip-path:inset(72% 0 16% 0)}30%{clip-path:inset(18% 0 70% 0);transform:translate(4px,0)}60%{clip-path:inset(50% 0 38% 0)}100%{clip-path:inset(100% 0 0 0)}}
 .tech-flicker{animation:tech-flicker 1.2s linear both}
 @keyframes tech-flicker{0%{opacity:0}6%{opacity:1}9%{opacity:.15}13%{opacity:.9}18%{opacity:.3}24%,100%{opacity:1}}
 
