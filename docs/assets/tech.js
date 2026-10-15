@@ -42,7 +42,7 @@
     if (!target || reduced() || performance.now() - (self.liIntroAt || 0) > 1200) { root.classList.remove('li-intro-on'); return Promise.resolve(); }
     const veil = make('div', 'li-intro');
     veil.innerHTML = `<div class="li-intro-mark">${liSvg('', '<circle class="li-wave" cx="43.5" cy="25" r="3.9"/>')}</div>`
-      + '<p class="li-intro-cap"><span>CHUANGQI LEE</span><b></b><span>李创奇</span></p>';
+      + '<p class="li-intro-cap"><span>CHUANGQI LEE</span><b></b><span>Li · 03</span></p>';
     const mark = veil.firstElementChild;
     root.classList.remove('li-intro-on'); // the veil is opaque itself; the cover sits above <body> and would hide it
     return new Promise(done => {
@@ -355,23 +355,9 @@
   if (frame0) make('div', 'tech-hud', frame0).innerHTML = '<i></i><i></i><i></i><i></i><b>TRACKING · CL-01</b>';
 
   /* ------------------------------------------------------------------
-     Li mark at scale: hero element card, construction figure, card
-     ghosts, footer lockup and the orbit back-to-top button
+     Li mark at scale: construction figure, card ghosts, footer lockup
+     and the orbit back-to-top button
      ------------------------------------------------------------------ */
-  const card = document.querySelector('.li-element'), stage = card?.closest('.hero-visual');
-  if (card && stage) {
-    const clamp = v => Math.max(0, Math.min(1, v));
-    stage.addEventListener('pointermove', e => {
-      if (!cursorOn()) return;
-      const s = stage.getBoundingClientRect(), c = card.getBoundingClientRect();
-      card.style.setProperty('--ry', `${(((e.clientX - s.left) / s.width - .5) * 22).toFixed(2)}deg`);
-      card.style.setProperty('--rx', `${((.5 - (e.clientY - s.top) / s.height) * 16).toFixed(2)}deg`);
-      card.style.setProperty('--gx', `${(clamp((e.clientX - c.left) / c.width) * 100).toFixed(1)}%`);
-      card.style.setProperty('--gy', `${(clamp((e.clientY - c.top) / c.height) * 100).toFixed(1)}%`);
-    });
-    stage.addEventListener('pointerleave', () => ['--rx', '--ry', '--gx', '--gy'].forEach(p => card.style.removeProperty(p)));
-  }
-
   const bp = document.querySelector('.li-blueprint');
   if (bp) {
     if ('IntersectionObserver' in window && !reduced()) {
