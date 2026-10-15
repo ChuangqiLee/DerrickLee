@@ -16,6 +16,52 @@
   const make = (tag, cls, parent = body) => { const el = document.createElement(tag); el.className = cls; el.setAttribute('aria-hidden', 'true'); parent.append(el); return el; };
 
   /* ------------------------------------------------------------------
+     Li mark: the logo's own 64-unit geometry, reused at every size
+     ------------------------------------------------------------------ */
+  const LI = {
+    frame: '<rect class="li-frame" x="6.75" y="6.75" width="50.5" height="50.5" rx="10" pathLength="1"/>',
+    three: '<path class="li-three" d="M13.6 12.6H19.4L16.1 16.4A2.9 2.9 0 1 1 13.4 20.6" pathLength="1"/>',
+    l: '<path class="li-l" d="M20 24V47H36" pathLength="1"/>',
+    i: '<path class="li-i" d="M43.5 33V50.25" pathLength="1"/>',
+    dot: '<circle class="li-halo" cx="43.5" cy="25" r="10"/><circle class="li-dot" cx="43.5" cy="25" r="3.9"/>'
+  };
+  const liSvg = (cls, extra = '') => `<svg class="li-svg ${cls}" viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">${LI.frame}${LI.three}${LI.l}${LI.i}${LI.dot}${extra}</svg>`;
+  make('div', 'li-defs').innerHTML = '<svg width="0" height="0" focusable="false"><defs>'
+    + '<radialGradient id="li-glow"><stop offset="0" stop-color="#7aa2ff" stop-opacity=".8"/><stop offset=".4" stop-color="#7aa2ff" stop-opacity=".22"/><stop offset="1" stop-color="#7aa2ff" stop-opacity="0"/></radialGradient>'
+    + '<linearGradient id="li-fade" gradientUnits="userSpaceOnUse" x1="0" y1="6" x2="0" y2="60"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#fff" stop-opacity=".01"/></linearGradient>'
+    + '</defs></svg>';
+
+  // First page of a visit: the mark draws itself full-screen, then flies into the header.
+  // The head script sets .li-intro-on so the cover is there from the first paint; if this
+  // script arrives late the cover has already lifted itself, so the intro is skipped.
+  let introDone = Promise.resolve();
+  if (root.classList.contains('li-intro-on')) introDone = intro();
+  function intro() {
+    const target = document.querySelector('.header .brand-mark');
+    try { sessionStorage.setItem('li-intro', '1'); } catch {}
+    if (!target || reduced() || performance.now() - (self.liIntroAt || 0) > 1200) { root.classList.remove('li-intro-on'); return Promise.resolve(); }
+    const veil = make('div', 'li-intro');
+    veil.innerHTML = `<div class="li-intro-mark">${liSvg('', '<circle class="li-wave" cx="43.5" cy="25" r="3.9"/>')}</div>`
+      + '<p class="li-intro-cap"><span>CHUANGQI LEE</span><b></b><span>李创奇</span></p>';
+    const mark = veil.firstElementChild;
+    root.classList.remove('li-intro-on'); // the veil is opaque itself; the cover sits above <body> and would hide it
+    return new Promise(done => {
+      let gone = false;
+      const leave = () => {
+        if (gone) return; gone = true; clearTimeout(timer);
+        const a = mark.getBoundingClientRect(), b = target.getBoundingClientRect();
+        mark.style.transform = `translate(${(b.left + b.width / 2 - a.left - a.width / 2).toFixed(1)}px,${(b.top + b.height / 2 - a.top - a.height / 2).toFixed(1)}px) scale(${(b.width / a.width).toFixed(4)})`;
+        veil.classList.add('is-leaving');
+        done();
+        setTimeout(() => { veil.remove(); target.classList.add('li-ping'); }, 780);
+      };
+      const timer = setTimeout(leave, 1550);
+      requestAnimationFrame(() => veil.classList.add('is-on'));
+      ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(t => addEventListener(t, leave, { once: true, passive: true }));
+    });
+  }
+
+  /* ------------------------------------------------------------------
      Canvases: a dot field behind the page, effects above it
      ------------------------------------------------------------------ */
   const field = make('canvas', 'tech-field'), fx = make('canvas', 'tech-fx');
@@ -298,7 +344,7 @@
         for (const ch of n.textContent) { const s = document.createElement('span'); s.className = 'tech-word'; s.style.setProperty('--i', i++); s.textContent = ch; frag.append(s); }
         n.replaceWith(frag);
       });
-      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('tech-in')));
+      introDone.then(() => requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('tech-in'))));
     });
     const glitch = el => { if (reduced() || document.hidden) return; el.classList.remove('is-glitching'); void el.offsetWidth; el.classList.add('is-glitching'); };
     const loop = () => { names.forEach(glitch); setTimeout(loop, 7000 + Math.random() * 6000); };
@@ -307,4 +353,76 @@
   }
   const frame0 = document.querySelector('.portrait-frame');
   if (frame0) make('div', 'tech-hud', frame0).innerHTML = '<i></i><i></i><i></i><i></i><b>TRACKING · CL-01</b>';
+
+  /* ------------------------------------------------------------------
+     Li mark at scale: hero element card, construction figure, card
+     ghosts, footer lockup and the orbit back-to-top button
+     ------------------------------------------------------------------ */
+  const card = document.querySelector('.li-element'), stage = card?.closest('.hero-visual');
+  if (card && stage) {
+    const clamp = v => Math.max(0, Math.min(1, v));
+    stage.addEventListener('pointermove', e => {
+      if (!cursorOn()) return;
+      const s = stage.getBoundingClientRect(), c = card.getBoundingClientRect();
+      card.style.setProperty('--ry', `${(((e.clientX - s.left) / s.width - .5) * 22).toFixed(2)}deg`);
+      card.style.setProperty('--rx', `${((.5 - (e.clientY - s.top) / s.height) * 16).toFixed(2)}deg`);
+      card.style.setProperty('--gx', `${(clamp((e.clientX - c.left) / c.width) * 100).toFixed(1)}%`);
+      card.style.setProperty('--gy', `${(clamp((e.clientY - c.top) / c.height) * 100).toFixed(1)}%`);
+    });
+    stage.addEventListener('pointerleave', () => ['--rx', '--ry', '--gx', '--gy'].forEach(p => card.style.removeProperty(p)));
+  }
+
+  const bp = document.querySelector('.li-blueprint');
+  if (bp) {
+    if ('IntersectionObserver' in window && !reduced()) {
+      bp.classList.add('is-armed');
+      const seen = new IntersectionObserver(([en]) => { if (en.isIntersecting) { bp.classList.add('is-drawn'); seen.disconnect(); setTimeout(() => bp.classList.add('is-done'), 3000); } }, { threshold: .3 });
+      seen.observe(bp);
+    }
+    // The valence electron leans toward the pointer.
+    const svg = bp.querySelector('svg'), electron = bp.querySelector('.bp-electron');
+    bp.addEventListener('pointermove', e => {
+      const m = cursorOn() && svg.getScreenCTM(); if (!m) return;
+      const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+      const dx = p.x - 43.5, dy = p.y - 25, d = Math.hypot(dx, dy) || 1, k = Math.min(d, 26) / d * .12;
+      electron.style.transform = `translate(${(dx * k).toFixed(2)}px,${(dy * k).toFixed(2)}px)`;
+    });
+    bp.addEventListener('pointerleave', () => { electron.style.transform = ''; });
+  }
+
+  document.querySelectorAll('.directory-card').forEach(c => c.insertAdjacentHTML('beforeend', liSvg('li-ghost')));
+
+  const foot = document.querySelector('.multi-footer');
+  if (foot && getComputedStyle(foot, '::after').content.includes('Chuangqi')) {
+    make('div', 'li-lockup', foot).innerHTML = liSvg('li-lockup-mark') + '<span>Chuangqi Lee</span>';
+    foot.classList.add('has-li-lockup');
+  }
+
+  // Back to top: the i's dot leaves home and orbits the ring as the page is read.
+  const orbit = document.createElement('a');
+  orbit.className = 'li-orbit'; orbit.href = '#top';
+  const zh = root.lang.startsWith('zh');
+  orbit.innerHTML = '<svg viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false"><circle class="li-orbit-track" cx="32" cy="32" r="28"/>'
+    + '<circle class="li-orbit-fill" cx="32" cy="32" r="28" pathLength="1"/>'
+    + `<g transform="translate(32 33) scale(.6) translate(-31.75 -35.7)"><g class="li-orbit-glyph">${LI.l}${LI.i}<circle class="li-orbit-home" cx="43.5" cy="25" r="3.9"/></g></g>`
+    + '<g class="li-orbit-e"><circle class="li-halo" cx="32" cy="4" r="8"/><circle class="li-dot" cx="32" cy="4" r="3.3"/></g></svg>'
+    + `<span class="li-orbit-tip" data-en="Back to top" data-zh="返回顶部">${zh ? '返回顶部' : 'Back to top'}</span>`;
+  body.append(orbit);
+  const orbitFill = orbit.querySelector('.li-orbit-fill'), orbitE = orbit.querySelector('.li-orbit-e');
+  let orbitQueued = false;
+  const syncOrbit = () => {
+    orbitQueued = false;
+    const max = root.scrollHeight - innerHeight, p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    orbit.classList.toggle('is-on', scrollY > innerHeight * .6);
+    orbitFill.style.strokeDashoffset = (1 - p).toFixed(4);
+    orbitE.style.transform = `rotate(${(p * 360).toFixed(1)}deg)`;
+  };
+  addEventListener('scroll', () => { if (!orbitQueued) { orbitQueued = true; requestAnimationFrame(syncOrbit); } }, { passive: true });
+  addEventListener('resize', syncOrbit);
+  syncOrbit();
+  orbit.addEventListener('click', e => {
+    e.preventDefault();
+    scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
+    if (e.detail === 0) document.querySelector('.header .brand')?.focus({ preventScroll: true });
+  });
 })();
