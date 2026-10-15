@@ -1,6 +1,7 @@
-/* Tech edition — ambient particle network, target-tracking cursor, click bursts,
-   text decrypt, glitch and card spotlight. Everything is decorative: content
-   stays fully visible and usable when this script fails or motion is reduced. */
+/* Tech edition — interactive dot field, target-tracking cursor, click
+   shockwaves, word reveals, label decrypt and a restrained glitch.
+   Everything here is decorative: content stays visible and usable when the
+   script fails, on touch devices, and when motion is reduced. */
 (() => {
   'use strict';
   const root = document.documentElement, body = document.body;
@@ -11,260 +12,299 @@
   const reduced = () => reduceQ.matches || root.classList.contains('motion-reduced');
   const fine = () => fineQ.matches;
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
-  const CYAN = '77,226,255', VIOLET = '143,123,255', PINK = '255,95,210';
+  const ACCENT = [122, 162, 255];
   const make = (tag, cls, parent = body) => { const el = document.createElement(tag); el.className = cls; el.setAttribute('aria-hidden', 'true'); parent.append(el); return el; };
 
-  /* ---------- Canvases */
-  const bg = make('canvas', 'tech-bg'), fx = make('canvas', 'tech-fx');
-  make('div', 'tech-scan');
-  const bctx = bg.getContext('2d'), fctx = fx.getContext('2d');
-  let W = 0, H = 0;
+  /* ------------------------------------------------------------------
+     Canvases: a dot field behind the page, effects above it
+     ------------------------------------------------------------------ */
+  const field = make('canvas', 'tech-field'), fx = make('canvas', 'tech-fx');
+  const dctx = field.getContext('2d'), fctx = fx.getContext('2d');
+  let W = 0, H = 0, S = 26;
   function resize() {
-    W = innerWidth; H = innerHeight;
-    for (const c of [bg, fx]) { c.width = W * DPR; c.height = H * DPR; }
-    bctx.setTransform(DPR, 0, 0, DPR, 0, 0); fctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    seed();
+    W = innerWidth; H = innerHeight; S = fine() ? 26 : 30;
+    for (const c of [field, fx]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
+    dctx.setTransform(DPR, 0, 0, DPR, 0, 0); fctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    dirty = true;
   }
 
-  /* Particle network (background) */
-  let nodes = [];
-  function seed() {
-    const target = Math.round(Math.min(fine() ? 90 : 38, (W * H) / (fine() ? 15000 : 22000)));
-    nodes = Array.from({ length: target }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25,
-      r: Math.random() * 1.4 + .6, hue: Math.random() < .7 ? CYAN : VIOLET
-    }));
-  }
   const mouse = { x: -9999, y: -9999, active: false };
-  function drawNetwork(step) {
-    bctx.clearRect(0, 0, W, H);
-    const link = 130, link2 = link * link, reach = 190, reach2 = reach * reach;
-    for (const n of nodes) {
-      if (step) {
-        n.x += n.vx; n.y += n.vy;
-        if (n.x < -20) n.x = W + 20; else if (n.x > W + 20) n.x = -20;
-        if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
-        if (mouse.active) {
-          const dx = mouse.x - n.x, dy = mouse.y - n.y, d2 = dx * dx + dy * dy;
-          if (d2 < reach2 && d2 > 400) { n.x += dx * .0035; n.y += dy * .0035; }
+  const waves = [];          // click shockwaves travelling through the dot field
+  const trail = [], rings = [], streaks = [];
+  let dirty = true;
+
+  function drawField(t) {
+    dctx.clearRect(0, 0, W, H);
+    const R = 170, R2 = R * R, still = reduced();
+    const oy = still ? 0 : -((scrollY * .18) % S);
+    const live = !still && fine();
+    const near = [];
+    dctx.fillStyle = 'rgba(255,255,255,.085)';
+    dctx.beginPath();
+    for (let gy = 0, iy = 0; gy < H + S; gy += S, iy++) {
+      const y = gy + oy + S / 2;
+      for (let gx = S / 2, ix = 0; gx < W; gx += S, ix++) {
+        let x = gx, yy = y, glow = 0;
+        if (mouse.active && live) {
+          const dx = x - mouse.x, dy = yy - mouse.y, d2 = dx * dx + dy * dy;
+          if (d2 < R2) {
+            const d = Math.sqrt(d2) || 1, f = 1 - d / R, e = f * f * (3 - 2 * f);
+            x += dx / d * e * 9; yy += dy / d * e * 9; glow = e;
+          }
         }
+        for (const w of waves) {
+          const dx = x - w.x, dy = yy - w.y, d = Math.sqrt(dx * dx + dy * dy) || 1, k = d - w.r;
+          if (k > -40 && k < 40) {
+            const b = Math.exp(-(k * k) / 360) * w.life;
+            x += dx / d * b * 12; yy += dy / d * b * 12; glow = Math.max(glow, b);
+          }
+        }
+        if (live && !glow) {
+          // a sparse, slow twinkle: a few dots flicker at any moment
+          const h = Math.sin(ix * 12.9898 + iy * 78.233) * 43758.5453;
+          const tw = Math.sin(t * .0011 + (h - Math.floor(h)) * 6283);
+          if (tw > .985) glow = (tw - .985) * 22;
+        }
+        if (glow > .02) near.push(x, yy, glow);
+        else dctx.rect(x - .6, yy - .6, 1.2, 1.2);
       }
     }
-    bctx.lineWidth = 1;
-    for (let i = 0; i < nodes.length; i++) {
-      const a = nodes[i];
-      for (let j = i + 1; j < nodes.length; j++) {
-        const b = nodes[j], dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
-        if (d2 < link2) {
-          bctx.strokeStyle = `rgba(${CYAN},${(1 - d2 / link2) * .16})`;
-          bctx.beginPath(); bctx.moveTo(a.x, a.y); bctx.lineTo(b.x, b.y); bctx.stroke();
-        }
-      }
-      if (mouse.active) {
-        const dx = a.x - mouse.x, dy = a.y - mouse.y, d2 = dx * dx + dy * dy;
-        if (d2 < reach2) {
-          bctx.strokeStyle = `rgba(${CYAN},${(1 - d2 / reach2) * .5})`;
-          bctx.beginPath(); bctx.moveTo(a.x, a.y); bctx.lineTo(mouse.x, mouse.y); bctx.stroke();
-        }
-      }
-      bctx.fillStyle = `rgba(${a.hue},.75)`;
-      bctx.beginPath(); bctx.arc(a.x, a.y, a.r, 0, 6.283); bctx.fill();
+    dctx.fill();
+    for (let i = 0; i < near.length; i += 3) {
+      const g = Math.min(1, near[i + 2]), r = Math.round(255 + (ACCENT[0] - 255) * g), gg = Math.round(255 + (ACCENT[1] - 255) * g);
+      dctx.fillStyle = `rgba(${r},${gg},255,${.12 + g * .7})`;
+      const s = 1.2 + g * 1.4;
+      dctx.fillRect(near[i] - s / 2, near[i + 1] - s / 2, s, s);
     }
   }
 
-  /* Trail + click bursts (foreground) */
-  const trail = [], sparks = [], rings = [];
-  function burst(x, y, light) {
-    rings.push({ x, y, r: 4, life: 1, c: CYAN }, { x, y, r: 2, life: 1.25, c: VIOLET });
-    if (light) return;
-    const count = 22;
-    for (let i = 0; i < count; i++) {
-      const a = (i / count) * 6.283 + Math.random() * .3, s = 2 + Math.random() * 4.5;
-      sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, c: [CYAN, VIOLET, PINK][i % 3], sz: Math.random() * 2 + 1 });
-    }
-  }
   function drawFx() {
     fctx.clearRect(0, 0, W, H);
-    // trail
-    for (let i = trail.length - 1; i >= 0; i--) { trail[i].life -= .05; if (trail[i].life <= 0) trail.splice(i, 1); }
-    if (trail.length > 1) {
-      fctx.lineCap = 'round'; fctx.lineJoin = 'round';
+    // comet trail
+    for (let i = trail.length - 1; i >= 0; i--) { trail[i].life -= .06; if (trail[i].life <= 0) trail.splice(i, 1); }
+    if (trail.length > 2) {
+      fctx.lineCap = 'round';
       for (let i = 1; i < trail.length; i++) {
-        const p = trail[i - 1], q = trail[i], t = q.life;
-        fctx.strokeStyle = `rgba(${i / trail.length > .5 ? CYAN : VIOLET},${t * .55})`;
-        fctx.lineWidth = t * 3;
-        fctx.shadowColor = `rgba(${CYAN},${t})`; fctx.shadowBlur = 10 * t;
+        const p = trail[i - 1], q = trail[i], k = i / trail.length, a = q.life * k;
+        fctx.strokeStyle = `rgba(${Math.round(255 - 133 * (1 - k))},${Math.round(255 - 93 * (1 - k))},255,${a * .55})`;
+        fctx.lineWidth = .5 + k * 1.6;
         fctx.beginPath(); fctx.moveTo(p.x, p.y); fctx.lineTo(q.x, q.y); fctx.stroke();
       }
-      fctx.shadowBlur = 0;
     }
-    // rings
+    // click rings
     for (let i = rings.length - 1; i >= 0; i--) {
-      const r = rings[i]; r.r += (70 - r.r) * .12; r.life -= .035;
+      const r = rings[i]; r.r += (r.max - r.r) * .09; r.life -= .03;
       if (r.life <= 0) { rings.splice(i, 1); continue; }
-      fctx.strokeStyle = `rgba(${r.c},${Math.min(1, r.life) * .9})`; fctx.lineWidth = 1.5;
-      fctx.beginPath(); fctx.arc(r.x, r.y, r.r, 0, 6.283); fctx.stroke();
+      fctx.strokeStyle = `rgba(255,255,255,${r.life * .55})`; fctx.lineWidth = 1;
+      fctx.beginPath(); fctx.arc(r.x, r.y, r.r, 0, 6.2832); fctx.stroke();
     }
-    // sparks
-    for (let i = sparks.length - 1; i >= 0; i--) {
-      const s = sparks[i]; s.x += s.vx; s.y += s.vy; s.vx *= .92; s.vy *= .92; s.life -= .028;
-      if (s.life <= 0) { sparks.splice(i, 1); continue; }
-      fctx.fillStyle = `rgba(${s.c},${s.life})`;
-      fctx.shadowColor = `rgba(${s.c},1)`; fctx.shadowBlur = 8;
-      fctx.fillRect(s.x - s.sz / 2, s.y - s.sz / 2, s.sz, s.sz);
+    // streaks
+    for (let i = streaks.length - 1; i >= 0; i--) {
+      const s = streaks[i]; s.d += s.v; s.v *= .9; s.life -= .035;
+      if (s.life <= 0) { streaks.splice(i, 1); continue; }
+      const x1 = s.x + Math.cos(s.a) * s.d, y1 = s.y + Math.sin(s.a) * s.d, len = 4 + s.v * 3;
+      fctx.strokeStyle = s.c.replace('A', s.life.toFixed(2)); fctx.lineWidth = 1.2;
+      fctx.beginPath(); fctx.moveTo(x1, y1); fctx.lineTo(x1 + Math.cos(s.a) * len, y1 + Math.sin(s.a) * len); fctx.stroke();
     }
-    fctx.shadowBlur = 0;
-    return trail.length || rings.length || sparks.length;
+    return trail.length || rings.length || streaks.length;
   }
 
-  /* ---------- Cursor: dot, lagging ring that locks onto targets, crosshair + readout */
+  function shock(x, y, light) {
+    waves.push({ x, y, r: 0, life: 1 });
+    rings.push({ x, y, r: 2, max: light ? 46 : 64, life: 1 });
+    if (light) return;
+    const n = 12;
+    for (let i = 0; i < n; i++) streaks.push({ x, y, a: i / n * 6.2832 + Math.random() * .25, d: 6, v: 3.5 + Math.random() * 2.5, life: 1, c: i % 3 ? 'rgba(255,255,255,A)' : 'rgba(122,162,255,A)' });
+  }
+
+  /* ------------------------------------------------------------------
+     Cursor: exact dot, trailing ring that locks onto targets, crosshair
+     ------------------------------------------------------------------ */
   const dot = make('div', 'tech-dot'), ring = make('div', 'tech-ring'), cross = make('div', 'tech-cross'), readout = make('div', 'tech-readout');
   for (let i = 0; i < 4; i++) ring.append(document.createElement('i'));
-  const ringPos = { x: -100, y: -100, w: 38, h: 38 };
-  let lockEl = null;
-  const TARGETS = 'a,button,[role=button],summary,label[for],.directory-card,.project-card,.contact-suite,.collection-photo a,video';
+  const rp = { x: -100, y: -100, w: 36, h: 36 };
+  let lockEl = null, lastRead = '';
+  const TARGETS = 'a,button,[role=button],summary,label[for],select,video';
   const pad = n => String(Math.max(0, Math.round(n))).padStart(4, '0');
-  function cursorEnabled() { return fine() && !reduced(); }
-  function syncCursorClass() { root.classList.toggle('tech-cursor-on', cursorEnabled() && mouse.active); }
+  const cursorOn = () => fine() && !reduced();
+  const syncCursor = () => root.classList.toggle('tech-cursor-on', cursorOn() && mouse.active);
 
-  function updateCursor() {
+  function drawCursor() {
     let tx, ty, tw, th;
     if (lockEl && lockEl.isConnected) {
       const b = lockEl.getBoundingClientRect();
-      if (b.width > 0 && b.width < W * .9 && b.height < H * .8) { tx = b.left - 6; ty = b.top - 6; tw = b.width + 12; th = b.height + 12; }
+      if (b.width > 0 && b.width < W * .8 && b.height < H * .6) { tx = b.left - 6; ty = b.top - 6; tw = b.width + 12; th = b.height + 12; }
     }
-    if (tx === undefined) { tw = 38; th = 38; tx = mouse.x - 19; ty = mouse.y - 19; }
-    const k = lockEl ? .3 : .2;
-    ringPos.x += (tx - ringPos.x) * k; ringPos.y += (ty - ringPos.y) * k;
-    ringPos.w += (tw - ringPos.w) * .3; ringPos.h += (th - ringPos.h) * .3;
-    ring.style.transform = `translate(${ringPos.x}px,${ringPos.y}px)`;
-    ring.style.width = ringPos.w + 'px'; ring.style.height = ringPos.h + 'px';
-    dot.style.transform = `translate(${mouse.x}px,${mouse.y}px)`;
+    if (tx === undefined) { tw = 36; th = 36; tx = mouse.x - 18; ty = mouse.y - 18; }
+    rp.x += (tx - rp.x) * (lockEl ? .28 : .18); rp.y += (ty - rp.y) * (lockEl ? .28 : .18);
+    rp.w += (tw - rp.w) * .25; rp.h += (th - rp.h) * .25;
+    ring.style.transform = `translate3d(${rp.x}px,${rp.y}px,0)`;
+    ring.style.width = rp.w + 'px'; ring.style.height = rp.h + 'px';
+    dot.style.transform = `translate3d(${mouse.x}px,${mouse.y}px,0)`;
     cross.style.setProperty('--cx', mouse.x + 'px'); cross.style.setProperty('--cy', mouse.y + 'px');
-    const rx = Math.min(mouse.x + 22, W - 150), ry = Math.min(mouse.y + 20, H - 34);
-    readout.style.transform = `translate(${rx}px,${ry}px)`;
-  }
-  function setReadout() {
-    const tag = lockEl ? (lockEl.matches('a') ? 'LINK' : lockEl.matches('button,[role=button]') ? 'ACTION' : lockEl.matches('video') ? 'MEDIA' : 'NODE') : 'TRACK';
-    readout.innerHTML = `${lockEl ? '◉ LOCK' : '◎'} ${tag}<br><span>X ${pad(mouse.x)} · Y ${pad(mouse.y)}</span>`;
+    readout.style.transform = `translate3d(${Math.min(mouse.x + 20, W - 140)}px,${Math.min(mouse.y + 18, H - 34)}px,0)`;
+    const verb = !lockEl ? '' : lockEl.matches('video') ? '▶ PLAY' : lockEl.matches('select') ? '◆ SELECT' : lockEl.matches('a') ? '→ OPEN' : '◆ ACTION';
+    const text = `${verb ? `<em>${verb}</em><br>` : ''}X ${pad(mouse.x)}  Y ${pad(mouse.y)}`;
+    if (text !== lastRead) { readout.innerHTML = text; lastRead = text; }
   }
 
-  /* ---------- Main loop (runs only while there is something to animate) */
-  let running = false, last = 0;
+  /* ------------------------------------------------------------------
+     Main loop: runs only while something is moving
+     ------------------------------------------------------------------ */
+  let running = false;
   function frame(t) {
     if (document.hidden) { running = false; return; }
-    const step = !reduced();
-    if (step || t - last > 1000) { drawNetwork(step); last = t; }
+    for (let i = waves.length - 1; i >= 0; i--) { const w = waves[i]; w.r += 11; w.life -= .016; if (w.life <= 0) waves.splice(i, 1); }
+    const ambient = fine() && !reduced();
+    if (ambient || dirty || waves.length) { drawField(t); dirty = false; }
     const busy = drawFx();
-    if (cursorEnabled() && mouse.active) { updateCursor(); setReadout(); }
-    if (step || busy) requestAnimationFrame(frame); else running = false;
+    if (cursorOn() && mouse.active) drawCursor();
+    if (ambient || busy || waves.length) requestAnimationFrame(frame); else running = false;
   }
-  function kick() { if (!running) { running = true; requestAnimationFrame(frame); } }
+  const kick = () => { if (!running) { running = true; requestAnimationFrame(frame); } };
 
   addEventListener('pointermove', e => {
     if (e.pointerType === 'touch') return;
     mouse.x = e.clientX; mouse.y = e.clientY;
-    if (!mouse.active) { mouse.active = true; ringPos.x = mouse.x - 19; ringPos.y = mouse.y - 19; syncCursorClass(); }
-    if (cursorEnabled()) { trail.push({ x: mouse.x, y: mouse.y, life: 1 }); if (trail.length > 24) trail.shift(); }
-    lockEl = cursorEnabled() ? e.target.closest?.(TARGETS) || null : null;
-    ring.classList.toggle('is-lock', !!lockEl);
+    if (!mouse.active) { mouse.active = true; rp.x = mouse.x - 18; rp.y = mouse.y - 18; syncCursor(); }
+    if (cursorOn()) { trail.push({ x: mouse.x, y: mouse.y, life: 1 }); if (trail.length > 18) trail.shift(); }
+    const t = cursorOn() && e.target.closest ? e.target.closest(TARGETS) : null;
+    if (t !== lockEl) { lockEl = t; ring.classList.toggle('is-lock', !!t); }
     kick();
   }, { passive: true });
-  root.addEventListener('pointerleave', () => { mouse.active = false; trail.length = 0; syncCursorClass(); });
-  addEventListener('blur', () => { mouse.active = false; syncCursorClass(); });
+  root.addEventListener('pointerleave', () => { mouse.active = false; lockEl = null; trail.length = 0; syncCursor(); dirty = true; kick(); });
+  addEventListener('blur', () => { mouse.active = false; syncCursor(); });
   addEventListener('pointerdown', e => {
     ring.classList.add('is-down');
     if (reduced()) return;
-    burst(e.clientX, e.clientY, e.pointerType === 'touch' || !fine());
+    shock(e.clientX, e.clientY, e.pointerType === 'touch' || !fine());
     kick();
   }, { passive: true });
   addEventListener('pointerup', () => ring.classList.remove('is-down'), { passive: true });
+  addEventListener('scroll', () => { dirty = true; if (!fine()) kick(); }, { passive: true });
   addEventListener('resize', () => { resize(); kick(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
-  const onMotionChange = () => { syncCursorClass(); kick(); };
-  reduceQ.addEventListener?.('change', onMotionChange); fineQ.addEventListener?.('change', () => { seed(); onMotionChange(); });
-  new MutationObserver(onMotionChange).observe(root, { attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { dirty = true; kick(); } });
+  const motionChanged = () => { syncCursor(); dirty = true; kick(); };
+  reduceQ.addEventListener?.('change', motionChanged);
+  fineQ.addEventListener?.('change', () => { resize(); motionChanged(); });
+  new MutationObserver(motionChanged).observe(root, { attributes: true, attributeFilter: ['class'] });
   resize(); kick();
 
-  /* ---------- Card spotlight */
-  const SPOT = '.directory-card,.project-card,.contact-suite,.highlight-item,.databank-card,.equipment-card,.qe-service,.project,.hospital-city,.education,.research-metrics,.neuroboost-feature,.cv-entry';
+  /* ------------------------------------------------------------------
+     Card light + magnetic controls
+     ------------------------------------------------------------------ */
+  const LIT = '.directory-card,.project-card,.contact-suite,.highlight-item,.databank-card,.equipment-card,.qe-service,.project,.hospital-city,.education,.research-metrics,.neuroboost-feature,.cv-entry,.qe-quality-cards article,.travel-shell,.le-notes';
   document.addEventListener('pointermove', e => {
-    const card = e.target.closest?.(SPOT); if (!card) return;
+    const card = e.target.closest?.(LIT); if (!card) return;
     const b = card.getBoundingClientRect();
     card.style.setProperty('--mx', `${e.clientX - b.left}px`); card.style.setProperty('--my', `${e.clientY - b.top}px`);
   }, { passive: true });
-
-  /* ---------- Magnetic buttons */
-  document.querySelectorAll('.button,.directory-arrow,.language').forEach(el => {
+  document.querySelectorAll('.button,.directory-arrow,.language,.le-pill,.corp-official,.corp-cta').forEach(el => {
     el.addEventListener('pointermove', e => {
-      if (!cursorEnabled()) return;
+      if (!cursorOn()) return;
       const b = el.getBoundingClientRect();
-      el.style.transform = `translate(${(e.clientX - b.left - b.width / 2) * .18}px,${(e.clientY - b.top - b.height / 2) * .25}px)`;
+      el.style.translate = `${(e.clientX - b.left - b.width / 2) * .2}px ${(e.clientY - b.top - b.height / 2) * .3}px`;
     });
-    el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+    el.addEventListener('pointerleave', () => { el.style.translate = ''; });
   });
 
-  /* ---------- Text decrypt (leaf elements only; cancelled on language switch) */
-  const GLYPHS = '!<>-_\\/[]{}—=+*^?#01ABCDEFXYZ';
+  /* ------------------------------------------------------------------
+     Label decrypt (mono labels; cancelled on language switch)
+     ------------------------------------------------------------------ */
+  const GLYPHS = '01<>/\\[]{}#*+=-_ABCDEFXZ';
   const active = new Map();
-  function scramble(el) {
+  const leaf = el => el.children.length === 0;
+  function decrypt(el) {
     if (reduced() || active.has(el)) return;
-    const final = el.textContent; if (!final.trim() || final.length > 70) return;
-    let f = 0; const total = 18;
+    const final = el.textContent; if (!final.trim() || final.length > 64) return;
+    el.dataset.techFinal = final;
+    let f = 0; const total = 16;
     const tick = () => {
       if (!active.has(el)) return;
-      f++;
-      const reveal = Math.floor((f / total) * final.length);
-      el.textContent = final.split('').map((ch, i) => i < reveal || ch === ' ' ? ch : GLYPHS[(Math.random() * GLYPHS.length) | 0]).join('');
+      const shown = Math.floor((++f / total) * final.length);
+      el.textContent = Array.from(final, (ch, i) => i < shown || ch === ' ' ? ch : GLYPHS[(Math.random() * GLYPHS.length) | 0]).join('');
       if (f < total) active.set(el, requestAnimationFrame(tick)); else { el.textContent = final; active.delete(el); }
     };
-    el.dataset.techFinal = final;
     active.set(el, requestAnimationFrame(tick));
   }
   new MutationObserver(() => {
-    // main.js rewrites data-en/data-zh text on language switch; stop any decrypt in flight so it never writes stale text.
-    active.forEach((id, el) => {
-      cancelAnimationFrame(id);
-      if (!el.hasAttribute('data-en')) el.textContent = el.dataset.techFinal;
-    });
+    // main.js rewrites data-en/data-zh text on a language switch; never let a decrypt write stale text afterwards.
+    active.forEach((id, el) => { cancelAnimationFrame(id); if (!el.hasAttribute('data-en')) el.textContent = el.dataset.techFinal; });
     active.clear();
   }).observe(root, { attributes: true, attributeFilter: ['lang'] });
-  const leaf = el => el.children.length === 0;
-  const decryptTargets = [...document.querySelectorAll('.eyebrow span,.eyebrow,.le-kicker,.corp-eyebrow,.qe-kicker,.section-heading h2,.polish-heading h2,main h2,.directory-card h3,.nav-wrap nav a')].filter(leaf);
-  const uniq = [...new Set(decryptTargets)];
-  uniq.forEach(el => el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') scramble(el); }));
+  const LABELS = '.eyebrow,.le-kicker,.corp-eyebrow,.qe-kicker,.directory-number,.edition-masthead span,.photo-index';
+  const labelLeaves = el => (leaf(el) ? [el] : [...el.querySelectorAll('span')].filter(leaf));
+  document.querySelectorAll(LABELS).forEach(el => el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') labelLeaves(el).forEach(decrypt); }));
 
-  /* ---------- Reveal + flicker on scroll */
+  /* ------------------------------------------------------------------
+     Scroll reveals: headings blur in word by word, cards rise in sequence
+     ------------------------------------------------------------------ */
+  function splitWords(el) {
+    let i = 0;
+    const walk = node => {
+      [...node.childNodes].forEach(child => {
+        if (child.nodeType === 3) {
+          if (!child.textContent.trim()) return;
+          const frag = document.createDocumentFragment();
+          child.textContent.split(/(\s+)/).forEach(p => {
+            if (!p) return;
+            if (/^\s+$/.test(p)) { frag.append(p); return; }
+            const s = document.createElement('span'); s.className = 'tech-word'; s.style.setProperty('--i', i++); s.textContent = p; frag.append(s);
+          });
+          child.replaceWith(frag);
+        } else if (child.nodeType === 1) {
+          if (child.matches('em')) { child.classList.add('tech-word'); child.style.setProperty('--i', i++); return; }
+          if (child.matches('.accent,svg,img,br')) return;
+          walk(child);
+        }
+      });
+    };
+    walk(el);
+  }
+  const RISE = '.highlight-item,.directory-card,.project,.publication,.databank-card,.equipment-card,.hospital-city,.qe-service,.contact-suite,.cv-entry,.experience-list li,.research-metrics,.qe-quality-cards article,.collection-photo,.october-photo';
   if ('IntersectionObserver' in window && !reduced()) {
-    const labels = document.querySelectorAll('.eyebrow,.le-kicker,.corp-eyebrow,.qe-kicker');
     const io = new IntersectionObserver(entries => entries.forEach(en => {
       if (!en.isIntersecting) return;
-      const el = en.target;
-      if (el.matches('.eyebrow,.le-kicker,.corp-eyebrow,.qe-kicker')) {
-        el.classList.add('tech-flicker');
-        el.querySelectorAll('span').forEach(s => { if (leaf(s)) scramble(s); });
-        if (leaf(el)) scramble(el);
-      }
-      io.unobserve(el);
-    }), { threshold: .3 });
-    labels.forEach(el => io.observe(el));
+      const el = en.target; io.unobserve(el);
+      el.classList.add('tech-in');
+      if (el.matches(LABELS)) { el.classList.add('tech-flicker'); labelLeaves(el).forEach(decrypt); }
+    }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+    document.querySelectorAll('main h2').forEach(h => { if (!h.closest('.hero')) { splitWords(h); io.observe(h); } });
+    const seen = new Map();
+    document.querySelectorAll(RISE).forEach(el => {
+      const n = seen.get(el.parentElement) || 0; seen.set(el.parentElement, n + 1);
+      el.style.setProperty('--i', n % 6);
+      el.classList.add('tech-rise');
+      el.addEventListener('transitionend', function done(e) {
+        if (e.propertyName !== 'opacity' || !el.classList.contains('tech-in')) return;
+        el.classList.remove('tech-rise', 'tech-in'); el.style.removeProperty('--i'); el.removeEventListener('transitionend', done);
+      });
+      io.observe(el);
+    });
+    document.querySelectorAll('.eyebrow,.le-kicker,.corp-eyebrow,.qe-kicker').forEach(el => io.observe(el));
   }
 
-  /* ---------- Hero: glitch name + HUD corners on portrait */
-  const names = document.querySelectorAll('.name-first,.name-last');
-  names.forEach(el => { el.classList.add('tech-glitch'); el.dataset.text = el.textContent; });
-  if (names.length) {
-    const glitch = () => {
-      if (!reduced() && !document.hidden) names.forEach(el => { el.classList.remove('is-glitching'); void el.offsetWidth; el.classList.add('is-glitching'); });
-      setTimeout(glitch, 3500 + Math.random() * 4000);
-    };
-    setTimeout(glitch, 1200);
-    names.forEach(el => el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && !reduced()) { el.classList.remove('is-glitching'); void el.offsetWidth; el.classList.add('is-glitching'); } }));
+  /* ------------------------------------------------------------------
+     Hero: name builds in letter by letter, then glitches now and then
+     ------------------------------------------------------------------ */
+  const names = [...document.querySelectorAll('.name-first,.name-last')];
+  names.forEach(el => { el.dataset.text = el.textContent; el.classList.add('tech-glitch'); });
+  if (names.length && !reduced()) {
+    let i = 0;
+    names.forEach(el => {
+      [...el.childNodes].forEach(n => {
+        if (n.nodeType !== 3) { if (n.nodeType === 1) { n.classList.add('tech-word'); n.style.setProperty('--i', i++); } return; }
+        const frag = document.createDocumentFragment();
+        for (const ch of n.textContent) { const s = document.createElement('span'); s.className = 'tech-word'; s.style.setProperty('--i', i++); s.textContent = ch; frag.append(s); }
+        n.replaceWith(frag);
+      });
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('tech-in')));
+    });
+    const glitch = el => { if (reduced() || document.hidden) return; el.classList.remove('is-glitching'); void el.offsetWidth; el.classList.add('is-glitching'); };
+    const loop = () => { names.forEach(glitch); setTimeout(loop, 7000 + Math.random() * 6000); };
+    setTimeout(loop, 2600);
+    names.forEach(el => el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') glitch(el); }));
   }
-  const frameEl = document.querySelector('.portrait-frame');
-  if (frameEl) {
-    const hud = make('div', 'tech-hud', frameEl);
-    hud.innerHTML = '<i></i><i></i><i></i><i></i><b>ID · CL-01</b>';
-  }
+  const frame0 = document.querySelector('.portrait-frame');
+  if (frame0) make('div', 'tech-hud', frame0).innerHTML = '<i></i><i></i><i></i><i></i><b>TRACKING · CL-01</b>';
 })();
