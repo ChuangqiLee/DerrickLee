@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="12" fill="#f5f3ee"/>
-  <path d="M47 16C41 9 31 8 23 12C12 17 9 29 14 40C19 52 34 56 45 48L49 44" stroke="#262723" stroke-width="3.8" stroke-linecap="square"/>
-  <path d="M31 17V40H47" stroke="#262723" stroke-width="3.8" stroke-linecap="square" stroke-linejoin="miter"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs><linearGradient id="dot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb0ff"/><stop offset="1" stop-color="#b38cff"/></linearGradient></defs>
+  <rect width="64" height="64" rx="14" fill="#0b0e14"/>
+  <path d="M51.23 37.51A20 20 0 1 0 40.77 49.98" stroke="#f4f5f7" stroke-width="7.5" stroke-linecap="round" transform="translate(-1 -1)"/>
+  <circle cx="46.32" cy="43.86" r="7.6" fill="url(#dot)"/>
 </svg>
