@@ -26,7 +26,7 @@
     if(status)status.textContent=document.documentElement.lang.startsWith('zh')?`显示 ${n} / ${cities.length} 个城市`:`Showing ${n} of ${cities.length} cities`;
   }
   input?.addEventListener('input',filter);
-  document.querySelectorAll('.ev-map-node').forEach(node=>node.addEventListener('click',e=>{
+  document.querySelectorAll('.ev-map-node,.ev-map-chip').forEach(node=>node.addEventListener('click',e=>{
     e.preventDefault();if(input)input.value='';filter();
     const target=document.getElementById('hospital-'+node.dataset.city);if(!target)return;
     cities.forEach(city=>city.classList.toggle('is-selected',city===target));
