@@ -372,3 +372,149 @@ body.tech-site .university-wall{grid-template-columns:repeat(auto-fill,minmax(12
 body.tech-site .university-wall h3{font-size:11.5px;line-height:1.5;min-height:0;padding:10px 4px 0;border-top:0;color:var(--muted)!important;font-weight:400}
 body.tech-site .university-wall article:hover h3{color:var(--ink)!important}
 @media(max-width:700px){body.tech-site .hospital-directory{columns:2;column-gap:12px}body.tech-site .hospital-city{margin-bottom:12px;padding:16px 14px!important}body.tech-site .university-wall{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 10px}body.tech-site .university-wall h3{font-size:10.5px}}
+/* ==========================================================================
+   Li mark at scale: intro, hero element card, construction figure, card
+   ghosts, footer lockup and the orbit back-to-top. Same 64-unit geometry as
+   monogram.svg; the blue dot is lithium's single valence electron.
+   ========================================================================== */
+.li-defs{position:absolute;width:0;height:0;overflow:hidden}
+.li-svg{display:block;overflow:visible}
+.li-svg .li-frame{stroke:currentColor;stroke-width:3.5}
+.li-svg .li-three{stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.li-svg .li-l,.li-svg .li-i,.li-orbit-glyph .li-l,.li-orbit-glyph .li-i{stroke:currentColor;stroke-width:6.5}
+.li-dot{fill:#7aa2ff}
+.li-halo{fill:url(#li-glow) none;opacity:.85}
+@keyframes li-breathe{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes li-draw{to{stroke-dashoffset:0}}
+
+/* Intro: first page of a visit only */
+html.li-intro-on::after{content:'';position:fixed;inset:0;z-index:9996;background:#060709;animation:li-cover-off 0s 1.4s forwards}
+@keyframes li-cover-off{to{visibility:hidden}}
+.li-intro{position:fixed;inset:0;z-index:9996;display:grid;place-content:center;justify-items:center;gap:30px;color:#f4f5f7}
+.li-intro::before{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(42% 38% at 50% 46%,rgba(122,162,255,.1),transparent 72%),#060709;transition:opacity .7s .05s}
+.li-intro-mark{width:min(36vmin,200px);aspect-ratio:1;transition:transform .75s cubic-bezier(.75,0,.18,1)}
+.li-intro-mark .li-svg{width:100%;height:100%}
+.li-intro :is(.li-frame,.li-three,.li-l,.li-i){stroke-dasharray:1;stroke-dashoffset:1}
+.li-intro.is-on .li-frame{animation:li-draw .85s cubic-bezier(.65,0,.35,1) forwards}
+.li-intro.is-on .li-l{animation:li-draw .5s .3s cubic-bezier(.65,0,.35,1) forwards}
+.li-intro.is-on .li-i{animation:li-draw .3s .58s cubic-bezier(.65,0,.35,1) forwards}
+.li-intro.is-on .li-three{animation:li-draw .45s .5s ease-out forwards}
+.li-intro .li-dot{transform-box:fill-box;transform-origin:center;transform:translateY(-20px) scale(0)}
+.li-intro.is-on .li-dot{animation:li-drop .6s .78s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes li-drop{to{transform:none}}
+.li-intro .li-halo{opacity:0}
+.li-intro.is-on .li-halo{animation:li-glow-in .6s 1s forwards}
+@keyframes li-glow-in{to{opacity:1}}
+.li-intro .li-wave{fill:none;stroke:#7aa2ff;stroke-width:.8;opacity:0;transform-box:fill-box;transform-origin:center}
+.li-intro.is-on .li-wave{animation:li-wave 1s 1.05s ease-out forwards}
+@keyframes li-wave{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(7)}}
+.li-intro-cap{display:flex;align-items:center;gap:16px;margin:0;font:500 11px/1 var(--mono);letter-spacing:.42em;color:#959aa5;transition:opacity .25s}
+.li-intro-cap span,.li-intro-cap b{opacity:0}
+.li-intro-cap b{width:26px;height:1px;background:rgba(255,255,255,.22)}
+.li-intro.is-on .li-intro-cap :is(span,b){animation:li-cap .8s .55s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes li-cap{from{opacity:0;filter:blur(6px);transform:translateY(6px)}to{opacity:1;filter:none;transform:none}}
+.li-intro.is-leaving{pointer-events:none}
+.li-intro.is-leaving::before,.li-intro.is-leaving .li-intro-cap{opacity:0}
+.li-intro.is-leaving .li-wave{display:none}
+body.tech-site .brand-mark.li-ping{animation:li-ping 1.2s ease-out}
+@keyframes li-ping{0%{filter:drop-shadow(0 0 0 rgba(122,162,255,0))}30%{filter:drop-shadow(0 0 14px rgba(122,162,255,.9))}100%{filter:drop-shadow(0 0 0 rgba(122,162,255,0))}}
+
+/* Hero: the mark as a periodic-table element card beside the portrait */
+.li-element{position:absolute;z-index:3;left:-86px;top:12%;width:172px;perspective:800px;animation:li-float 7s ease-in-out infinite}
+@keyframes li-float{50%{translate:0 -10px}}
+.li-element-card{position:relative;display:grid;grid-template:'z m' auto 'g g' 1fr 'n n' auto 'c c' auto/1fr auto;aspect-ratio:172/212;padding:15px 15px 16px;border-radius:20px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(155deg,rgba(255,255,255,.1),rgba(255,255,255,.015) 45%,rgba(122,162,255,.07)),rgba(9,11,17,.6);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 30px 70px -24px rgba(0,0,0,.95),0 0 0 1px rgba(0,0,0,.35),0 0 70px -24px rgba(122,162,255,.45);
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .6s var(--ease-out)}
+.hero-visual:hover .li-element-card{transition-duration:.18s}
+.li-el-z{grid-area:z;font:500 16px/1 var(--mono);color:var(--ink)}
+.li-el-mass{grid-area:m;padding-top:3px;font:400 10.5px/1 var(--mono);letter-spacing:.06em;color:var(--dim)}
+.li-el-glyph{grid-area:g;align-self:center;justify-self:center;width:64%;color:#f4f5f7}
+.li-el-glyph .li-halo{animation:li-breathe 3.6s ease-in-out infinite}
+.li-el-name{grid-area:n;font:500 13px/1.25 var(--sans);letter-spacing:-.01em;color:var(--ink)}
+.li-el-meta{grid-area:c;margin-top:6px;font:400 10px/1 var(--mono);letter-spacing:.08em;color:var(--muted)}
+.li-el-glare{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(260px circle at var(--gx,25%) var(--gy,0%),rgba(255,255,255,.15),transparent 55%);mix-blend-mode:screen}
+
+/* About: the mark's construction drawing, drawn on scroll */
+.li-blueprint{max-width:350px;margin:46px 0 0}
+.li-blueprint svg{display:block;width:100%;height:auto;overflow:visible;color:#f4f5f7}
+.bp-grid line{stroke:rgba(255,255,255,.065);stroke-width:.16}
+.bp-grid .bp-edge{stroke:rgba(255,255,255,.16)}
+.bp-guide{fill:none;stroke:rgba(122,162,255,.5);stroke-width:.18;stroke-dasharray:.8 .8}
+.bp-dim{fill:none;stroke:rgba(255,255,255,.32);stroke-width:.18}
+.bp-label{font:500 2.1px var(--mono);letter-spacing:.12px;fill:#6b707c}
+.bp-label.is-accent{fill:#7aa2ff}
+.bp-orbit{fill:none;stroke:rgba(122,162,255,.55);stroke-width:.7px;vector-effect:non-scaling-stroke}
+.bp-spin{animation:li-spin 7s linear infinite}
+@keyframes li-spin{to{transform:rotate(360deg)}}
+.bp-electron{transition:transform .5s var(--ease-out)}
+.li-blueprint .li-halo{animation:li-breathe 3.6s ease-in-out infinite}
+.li-blueprint figcaption{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.bp-kicker{display:block;font:500 10.5px/1 var(--mono);letter-spacing:.16em;color:var(--accent)}
+.li-blueprint figcaption p{margin:10px 0 0;font-size:13px;line-height:1.75;color:var(--muted)}
+.li-blueprint.is-armed :is(.bp-grid,.bp-guides,.bp-labels,.bp-electron){opacity:0;transition:opacity 1s}
+.li-blueprint.is-armed :is(.li-frame,.li-three,.li-l,.li-i){stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.2s cubic-bezier(.65,0,.35,1)}
+.li-blueprint.is-drawn :is(.bp-grid,.bp-guides,.bp-labels,.bp-electron){opacity:1}
+.li-blueprint.is-drawn .bp-guides{transition-delay:.35s}
+.li-blueprint.is-drawn :is(.li-frame,.li-three,.li-l,.li-i){stroke-dashoffset:0}
+.li-blueprint.is-drawn .li-frame{transition-delay:.5s}
+.li-blueprint.is-drawn .li-l{transition-delay:1s}
+.li-blueprint.is-drawn .li-i{transition-delay:1.35s}
+.li-blueprint.is-drawn .li-three{transition-delay:1.2s}
+.li-blueprint.is-drawn .bp-labels{transition-delay:1.4s}
+.li-blueprint.is-drawn .bp-electron{transition:opacity .8s 1.7s,transform .5s var(--ease-out)}
+.li-blueprint.is-done :is(.li-frame,.li-three,.li-l,.li-i),.li-intro.is-leaving :is(.li-frame,.li-three,.li-l,.li-i){stroke-dasharray:none;animation:none}
+
+/* Explore cards: a ghost of the mark lights up on hover */
+.li-ghost{position:absolute;right:104px;top:50%;width:72px;height:72px;translate:0 -50%;color:rgba(255,255,255,.05);pointer-events:none;transition:translate .7s var(--ease-out),rotate .7s var(--ease-out),color .4s}
+.li-ghost .li-dot{fill:rgba(122,162,255,.18);transition:fill .4s}
+.li-ghost .li-halo{opacity:0;transition:opacity .4s}
+.directory-card:hover .li-ghost{color:rgba(255,255,255,.22);translate:-16px -50%;rotate:-8deg}
+.directory-card:hover .li-ghost .li-dot{fill:#7aa2ff}
+.directory-card:hover .li-ghost .li-halo{opacity:1}
+
+/* Footer: giant lockup, the dot the only colour in it */
+body.tech-site .multi-footer.has-li-lockup::after{display:none}
+.li-lockup{order:99;flex-basis:100%;width:100%;display:flex;align-items:baseline;justify-content:center;gap:.13em;margin-top:10px;font:600 clamp(40px,12.6vw,188px)/.8 var(--serif);letter-spacing:-.06em;white-space:nowrap;pointer-events:none;user-select:none;overflow:hidden}
+.li-lockup span{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.li-lockup-mark{flex:none;width:.76em;height:.76em}
+.li-lockup-mark :is(.li-frame,.li-three,.li-l,.li-i){stroke:url(#li-fade) currentColor}
+.li-lockup-mark .li-halo{animation:li-breathe 3.6s ease-in-out infinite}
+
+/* Orbit back-to-top */
+.li-orbit{position:fixed;right:max(22px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:60;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#f4f5f7;
+  background:rgba(10,12,18,.62);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 0 0 1px rgba(255,255,255,.1),0 14px 34px -12px rgba(0,0,0,.85);
+  opacity:0;visibility:hidden;translate:0 14px;transition:opacity .4s,translate .5s var(--ease-out),visibility 0s .5s,box-shadow .3s}
+.li-orbit.is-on{opacity:1;visibility:visible;translate:0;transition:opacity .4s,translate .5s var(--ease-out),visibility 0s,box-shadow .3s}
+.li-orbit svg{width:100%;height:100%;overflow:visible}
+.li-orbit-track{stroke:rgba(255,255,255,.1);stroke-width:1.4}
+.li-orbit-fill{stroke:#7aa2ff;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transform:rotate(-90deg);transform-origin:32px 32px;opacity:.75}
+.li-orbit-glyph{transition:transform .4s var(--ease-out)}
+.li-orbit-home{fill:none;stroke:rgba(122,162,255,.6);stroke-width:1.5;stroke-dasharray:1.5 1.5;transition:stroke .3s,fill .3s}
+.li-orbit-e{transform-origin:32px 32px}
+.li-orbit-tip{position:absolute;right:calc(100% + 10px);top:50%;translate:6px -50%;padding:7px 11px;border-radius:999px;white-space:nowrap;font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:rgba(10,12,18,.85);box-shadow:0 0 0 1px rgba(255,255,255,.1);opacity:0;pointer-events:none;transition:opacity .25s,translate .35s var(--ease-out)}
+.li-orbit:hover,.li-orbit:focus-visible{box-shadow:0 0 0 1px rgba(122,162,255,.45),0 0 28px -6px rgba(122,162,255,.6),0 14px 34px -12px rgba(0,0,0,.85)}
+.li-orbit:hover .li-orbit-tip,.li-orbit:focus-visible .li-orbit-tip{opacity:1;translate:0 -50%}
+.li-orbit:hover .li-orbit-glyph{transform:translateY(-3px)}
+.li-orbit:hover .li-orbit-home{stroke:#7aa2ff;fill:rgba(122,162,255,.25)}
+.li-orbit:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+@media(max-width:1180px){.li-element{left:-58px;width:150px}}
+@media(max-width:760px){
+  .li-element{left:-4px;top:18px;width:112px}
+  .li-element-card{padding:10px 10px 11px;border-radius:15px}
+  .li-el-z{font-size:12px}.li-el-mass{font-size:8.5px;padding-top:2px}.li-el-name{font-size:10.5px}.li-el-meta{font-size:8px;margin-top:4px}
+  .li-blueprint{max-width:300px;margin-top:30px}
+  .li-ghost{display:none}
+  .li-orbit{width:46px;height:46px;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){
+  .li-element,.li-halo,.bp-spin{animation:none!important}
+  .li-element-card,.li-ghost,.li-orbit,.bp-electron{transition:none!important}
+}
+html.motion-reduced :is(.li-element,.li-halo,.bp-spin){animation:none!important}
+html.motion-reduced :is(.li-element-card,.li-ghost,.li-orbit,.bp-electron){transition:none!important}
+@media print{.li-intro,.li-orbit,.li-ghost,.li-element,.li-lockup{display:none!important}html.li-intro-on::after{display:none}}
+.bp-particle{fill:#b9ccff}
